@@ -3,11 +3,15 @@ import "./globals.css";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
 
 export const metadata: Metadata = {
-  title: "AI Workspace",
-  description: "Your Intelligent Second Brain",
+  title: "Nexora AI | Your Intelligent Second Brain",
+  description:
+    "Nexora AI is an intelligent workspace that helps you manage knowledge, notes, and AI-powered productivity.",
 };
 
 export default function RootLayout({
@@ -17,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={cn("font-sans", geist.variable)}>
-      <body>{children}</body>
+      <body className="antialiased">{children}</body>
     </html>
   );
 }
