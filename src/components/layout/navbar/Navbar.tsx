@@ -2,44 +2,82 @@ import Link from "next/link";
 import Container from "@/components/common/Container";
 import { Button } from "@/components/ui/button";
 
+const navItems = [
+  {
+    name: "Features",
+    href: "#features",
+  },
+  {
+    name: "Workspace",
+    href: "#workspace",
+  },
+  {
+    name: "Knowledge",
+    href: "#knowledge",
+  },
+  {
+    name: "About",
+    href: "#about",
+  },
+];
+
 export default function Navbar() {
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-black/30 backdrop-blur-xl">
+    <header className="fixed inset-x-0 top-0 z-50">
       <Container>
-        <nav className="flex h-20 items-center justify-between">
+        <nav className="mt-5 flex h-16 items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-6 backdrop-blur-2xl">
+
+          {/* Logo */}
 
           <Link
             href="/"
-            className="text-2xl font-bold tracking-tight text-white"
+            className="flex items-center gap-3"
           >
-            Nexora
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-violet-600 font-bold text-white shadow-lg shadow-blue-500/30">
+              N
+            </div>
+
+            <div>
+              <p className="text-lg font-bold text-white">
+                Nexora AI
+              </p>
+
+              <p className="text-xs text-slate-400">
+                Intelligent Second Brain
+              </p>
+            </div>
           </Link>
 
-          <div className="hidden items-center gap-8 md:flex">
+          {/* Desktop Navigation */}
 
-            <Link href="#" className="text-sm text-gray-300 hover:text-white">
-              Features
-            </Link>
-
-            <Link href="#" className="text-sm text-gray-300 hover:text-white">
-              AI Assistant
-            </Link>
-
-            <Link href="#" className="text-sm text-gray-300 hover:text-white">
-              Knowledge Base
-            </Link>
-
-            <Link href="#" className="text-sm text-gray-300 hover:text-white">
-              Dashboard
-            </Link>
-
+          <div className="hidden items-center gap-8 lg:flex">
+            {navItems.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="text-sm font-medium text-slate-300 transition-all duration-300 hover:text-white"
+              >
+                {item.name}
+              </Link>
+            ))}
           </div>
 
-          <Button>
+          {/* Right Side */}
 
-            Get Started
+          <div className="hidden items-center gap-3 lg:flex">
 
-          </Button>
+            <Button
+              variant="ghost"
+              className="text-slate-300 hover:bg-white/10 hover:text-white"
+            >
+              Login
+            </Button>
+
+            <Button className="rounded-xl bg-gradient-to-r from-blue-500 to-violet-600 px-6 text-white hover:opacity-90">
+              Get Started
+            </Button>
+
+          </div>
 
         </nav>
       </Container>
