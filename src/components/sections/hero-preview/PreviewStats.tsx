@@ -5,7 +5,7 @@ export default function PreviewStats() {
       <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
 
         <p className="text-xs text-slate-400">
-          Documents
+          Knowledge Files
         </p>
 
         <h3 className="mt-2 text-2xl font-bold text-white">
@@ -17,7 +17,7 @@ export default function PreviewStats() {
       <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
 
         <p className="text-xs text-slate-400">
-          AI Chats
+          AI Responses
         </p>
 
         <h3 className="mt-2 text-2xl font-bold text-white">
@@ -33,7 +33,7 @@ export default function PreviewStats() {
         </p>
 
         <h3 className="mt-2 text-2xl font-bold text-emerald-400">
-          98%
+          12.4 GB
         </h3>
 
       </div>

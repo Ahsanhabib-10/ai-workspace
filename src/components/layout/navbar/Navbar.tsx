@@ -23,9 +23,24 @@ const navItems = [
 
 export default function Navbar() {
   return (
-    <header className="fixed inset-x-0 top-0 z-50">
+    <header className="fixed inset-x-0 top-0 z-50 py-4">
       <Container>
-        <nav className="mt-5 flex h-16 items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-6 backdrop-blur-2xl">
+        <nav
+  className="
+    mt-2
+    flex
+    h-[72px]
+    items-center
+    justify-between
+    rounded-3xl
+    border
+    border-white/10
+    bg-white/[0.04]
+    px-6
+    backdrop-blur-2xl
+    shadow-[0_10px_50px_rgba(0,0,0,0.35)]
+  "
+>
 
           {/* Logo */}
 
@@ -73,7 +88,20 @@ export default function Navbar() {
               Login
             </Button>
 
-            <Button className="rounded-xl bg-gradient-to-r from-blue-500 to-violet-600 px-6 text-white hover:opacity-90">
+            <Button
+  className="
+       rounded-xl
+       bg-gradient-to-r
+       from-blue-500
+       to-violet-600
+        px-6
+       text-white
+        transition-all
+        duration-300
+        hover:scale-105
+        hover:opacity-90
+  "
+      >
               Get Started
             </Button>
 

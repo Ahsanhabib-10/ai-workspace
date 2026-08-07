@@ -65,10 +65,10 @@ export default function PreviewSidebar() {
           return (
             <button
               key={item.label}
-              className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm transition-all duration-300 ${
+              className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm transition-all duration-300 hover:translate-x-1 ${
                 item.active
                   ? "bg-blue-500/15 text-white"
-                  : "text-slate-400 hover:bg-white/5 hover:text-white"
+                  : "text-slate-400 hover:bg-white/10 hover:text-white"
               }`}
             >
               <Icon size={18} />

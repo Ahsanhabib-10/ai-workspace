@@ -1,22 +1,64 @@
+"use client";
+
+import { motion } from "framer-motion";
+
 export default function Background() {
   return (
-    <div className="fixed inset-0 -z-10 overflow-hidden">
+    <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
 
-      {/* Main Background */}
+      {/* Top Glow */}
 
-      <div className="absolute inset-0 bg-[#030712]" />
+      <motion.div
+        animate={{
+          x: [0, 80, 0],
+          y: [0, -30, 0],
+        }}
+        transition={{
+          duration: 16,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+        className="absolute left-[-150px] top-[-150px] h-[500px] w-[500px] rounded-full bg-cyan-500/15 blur-[140px]"
+      />
 
-      {/* Top Blue Glow */}
+      {/* Bottom Glow */}
 
-      <div className="absolute left-1/2 top-0 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-blue-600/20 blur-[140px]" />
+      <motion.div
+        animate={{
+          x: [0, -80, 0],
+          y: [0, 40, 0],
+        }}
+        transition={{
+          duration: 18,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+        className="absolute bottom-[-180px] right-[-180px] h-[600px] w-[600px] rounded-full bg-violet-600/15 blur-[160px]"
+      />
 
-      {/* Bottom Violet Glow */}
+      {/* Center Glow */}
 
-      <div className="absolute bottom-0 right-0 h-[420px] w-[420px] rounded-full bg-violet-600/20 blur-[140px]" />
+      <motion.div
+        animate={{
+          scale: [1, 1.15, 1],
+        }}
+        transition={{
+          duration: 12,
+          repeat: Infinity,
+        }}
+        className="absolute left-1/2 top-1/2 h-[350px] w-[350px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-500/10 blur-[120px]"
+      />
 
-      {/* Left Glow */}
+      {/* Grid */}
 
-      <div className="absolute left-0 top-1/2 h-[320px] w-[320px] rounded-full bg-cyan-500/10 blur-[120px]" />
+      <div
+        className="
+          absolute
+          inset-0
+          bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)]
+          bg-[size:60px_60px]
+        "
+      />
 
     </div>
   );

@@ -1,6 +1,7 @@
 import HeroBadge from "./HeroBadge";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Play } from "lucide-react";
+import GradientText from "@/components/common/gradients/GradientText";
 
 export default function HeroContent() {
   return (
@@ -14,7 +15,9 @@ export default function HeroContent() {
 
         <span className="block bg-gradient-to-r from-cyan-300 via-blue-400 to-violet-400 bg-clip-text text-transparent">
 
-          Infinite Intelligence.
+         <GradientText>
+            Infinite Intelligence.
+         </GradientText>
 
         </span>
 
