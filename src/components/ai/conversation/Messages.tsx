@@ -1,23 +1,52 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+
 import MessageBubble from "../MessageBubble";
 
-export default function Messages() {
+interface MessagesProps {
+  messages: {
+    role: "user" | "assistant";
+    content: string;
+  }[];
+  isTyping: boolean;
+}
+
+export default function Messages({
+  messages,
+  isTyping,
+}: MessagesProps) {
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+  }, [messages, isTyping]);
+
   return (
-    <div className="flex flex-1 flex-col gap-5 overflow-y-auto p-8">
+    <div className="flex h-full flex-col overflow-y-auto px-10 py-10">
 
-      <MessageBubble
-        role="assistant"
-        message="👋 Welcome back! I'm Nexora AI."
-      />
+      <div className="space-y-10">
 
-      <MessageBubble
-        role="user"
-        message="Help me become an AI Engineer."
-      />
+        {messages.map((message, index) => (
+          <MessageBubble
+            key={index}
+            role={message.role}
+            message={message.content}
+          />
+        ))}
 
-      <MessageBubble
-        role="assistant"
-        message="Absolutely! I can help you with roadmaps, coding, interviews, projects and resume building."
-      />
+        {isTyping && (
+          <MessageBubble
+            role="assistant"
+            message="Typing..."
+          />
+        )}
+
+        <div ref={bottomRef} />
+
+      </div>
 
     </div>
   );

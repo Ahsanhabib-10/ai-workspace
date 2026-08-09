@@ -1,14 +1,34 @@
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
+
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import OverviewCards from "@/components/dashboard/OverviewCards";
 import RecentActivity from "@/components/dashboard/RecentActivity";
 import QuickActions from "@/components/dashboard/QuickActions";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const session = await auth();
+
+  // User is not logged in
+  if (!session?.user) {
+    redirect("/login");
+  }
+
   return (
     <DashboardLayout>
-      <h1 className="mb-8 text-4xl font-bold text-white">
-        Welcome Back 👋
-      </h1>
+      <div className="mb-8">
+        <p className="text-sm text-slate-500">
+          Welcome back
+        </p>
+
+        <h1 className="mt-1 text-3xl font-bold text-white">
+          {session.user.name || "User"}
+        </h1>
+
+        <p className="mt-2 text-sm text-slate-500">
+          {session.user.email}
+        </p>
+      </div>
 
       <OverviewCards />
 

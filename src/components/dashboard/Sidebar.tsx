@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import {
   LayoutDashboard,
@@ -6,7 +8,9 @@ import {
   Database,
   FolderKanban,
   Settings,
+  LogOut,
 } from "lucide-react";
+import { signOut } from "next-auth/react";
 
 const items = [
   {
@@ -43,22 +47,21 @@ const items = [
 
 export default function Sidebar() {
   return (
-    <aside className="hidden w-72 border-r border-white/10 bg-white/5 backdrop-blur-xl lg:block">
+    <aside className="flex min-h-screen w-72 flex-col border-r border-white/10 bg-[#030712]">
 
+      {/* Brand */}
       <div className="p-8">
-
-        <h1 className="text-2xl font-black">
+        <h1 className="text-2xl font-black text-white">
           Nexora AI
         </h1>
 
         <p className="mt-2 text-sm text-slate-400">
           Intelligent Workspace
         </p>
-
       </div>
 
-      <nav className="px-4">
-
+      {/* Navigation */}
+      <nav className="flex-1 px-4">
         {items.map((item) => {
           const Icon = item.icon;
 
@@ -74,8 +77,26 @@ export default function Sidebar() {
             </Link>
           );
         })}
-
       </nav>
+
+      {/* Logout */}
+      <div className="border-t border-white/10 p-4">
+        <button
+          type="button"
+          onClick={() =>
+            signOut({
+              callbackUrl: "/login",
+            })
+          }
+          className="flex w-full items-center gap-4 rounded-xl px-5 py-4 text-slate-400 transition hover:bg-red-400/10 hover:text-red-300"
+        >
+          <LogOut size={20} />
+
+          <span className="text-sm font-medium">
+            Logout
+          </span>
+        </button>
+      </div>
 
     </aside>
   );
