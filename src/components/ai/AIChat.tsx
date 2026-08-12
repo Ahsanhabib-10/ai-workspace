@@ -8,9 +8,17 @@ import ChatHistory from "./history/ChatHistory";
 
 import { Menu, X } from "lucide-react";
 
+interface Source {
+  documentId: string;
+  fileName: string;
+  chunkIndex: number;
+  score: number;
+}
+
 interface ChatMessage {
   role: "user" | "assistant";
   content: string;
+  sources?: Source[];
 }
 
 export default function AIChat() {
@@ -26,6 +34,9 @@ export default function AIChat() {
   const [chatId, setChatId] =
     useState<string | null>(null);
 
+  const [historyRefresh, setHistoryRefresh] =
+    useState(0);
+
   // --------------------------------
   // New Chat
   // --------------------------------
@@ -39,82 +50,86 @@ export default function AIChat() {
   // Select existing chat
   // --------------------------------
 
- const handleSelectChat = async (
-  selectedChatId: string
-) => {
-  setChatId(selectedChatId);
-  setHistoryOpen(false);
-  setIsTyping(true);
+  const handleSelectChat = async (
+    selectedChatId: string
+  ) => {
+    setChatId(selectedChatId);
+    setHistoryOpen(false);
+    setIsTyping(true);
 
-  try {
-    const response = await fetch(
-      `/api/chats/${selectedChatId}`,
-      {
-        method: "GET",
-        cache: "no-store",
-      }
-    );
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(
-        data.error ||
-          "Failed to load chat."
+    try {
+      const response = await fetch(
+        `/api/chats/${selectedChatId}`,
+        {
+          method: "GET",
+          cache: "no-store",
+        }
       );
+
+      const data =
+        await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.error ||
+            "Failed to load chat."
+        );
+      }
+
+      const loadedMessages =
+        data.chat?.messages ?? [];
+
+      setMessages(
+        loadedMessages
+          .filter(
+            (message: {
+              role: string;
+              content: string;
+            }) =>
+              message.role === "user" ||
+              message.role === "assistant"
+          )
+          .map(
+            (message: {
+              role: string;
+              content: string;
+            }) => ({
+              role:
+                message.role as
+                  | "user"
+                  | "assistant",
+              content:
+                message.content,
+            })
+          )
+      );
+    } catch (error) {
+      console.error(
+        "Load chat error:",
+        error
+      );
+
+      setMessages([
+        {
+          role: "assistant",
+          content:
+            error instanceof Error
+              ? error.message
+              : "Failed to load this conversation.",
+        },
+      ]);
+    } finally {
+      setIsTyping(false);
     }
-
-    const loadedMessages =
-      data.chat?.messages ?? [];
-
-    setMessages(
-      loadedMessages
-        .filter(
-          (message: {
-            role: string;
-            content: string;
-          }) =>
-            message.role === "user" ||
-            message.role === "assistant"
-        )
-        .map(
-          (message: {
-            role: string;
-            content: string;
-          }) => ({
-            role:
-              message.role as
-                | "user"
-                | "assistant",
-            content: message.content,
-          })
-        )
-    );
-  } catch (error) {
-    console.error(
-      "Load chat error:",
-      error
-    );
-
-    setMessages([
-      {
-        role: "assistant",
-        content:
-          error instanceof Error
-            ? error.message
-            : "Failed to load this conversation.",
-      },
-    ]);
-  } finally {
-    setIsTyping(false);
-  }
-};
+  };
 
   // --------------------------------
   // Send message
   // --------------------------------
 
-  const handleSend = async (text: string) => {
+  const handleSend = async (
+    text: string
+  ) => {
     const cleanText = text.trim();
 
     if (!cleanText || isTyping) {
@@ -137,7 +152,7 @@ export default function AIChat() {
 
     try {
       // --------------------------------
-      // Send message + current chatId
+      // Send message
       // --------------------------------
 
       const response = await fetch(
@@ -176,7 +191,57 @@ export default function AIChat() {
       }
 
       // --------------------------------
-      // Add AI response
+      // Refresh history
+      // --------------------------------
+
+      setHistoryRefresh(
+        (prev) => prev + 1
+      );
+
+      // --------------------------------
+      // Prepare sources
+      // --------------------------------
+
+      const sources: Source[] =
+        Array.isArray(data.sources)
+          ? data.sources
+              .filter(
+                (source: {
+                  documentId?: unknown;
+                  fileName?: unknown;
+                  chunkIndex?: unknown;
+                  score?: unknown;
+                }) =>
+                  typeof source.documentId ===
+                    "string" &&
+                  typeof source.fileName ===
+                    "string" &&
+                  typeof source.chunkIndex ===
+                    "number" &&
+                  typeof source.score ===
+                    "number"
+              )
+              .map(
+                (source: {
+                  documentId: string;
+                  fileName: string;
+                  chunkIndex: number;
+                  score: number;
+                }) => ({
+                  documentId:
+                    source.documentId,
+                  fileName:
+                    source.fileName,
+                  chunkIndex:
+                    source.chunkIndex,
+                  score:
+                    source.score,
+                })
+              )
+          : [];
+
+      // --------------------------------
+      // Add AI response + sources
       // --------------------------------
 
       setMessages((prev) => [
@@ -186,6 +251,7 @@ export default function AIChat() {
           content:
             data.answer ??
             "Sorry, I couldn't generate a response.",
+          sources,
         },
       ]);
     } catch (error) {
@@ -218,11 +284,14 @@ export default function AIChat() {
 
       {historyOpen && (
         <div className="absolute inset-y-0 left-0 z-20 w-64 border-r border-white/10 bg-[#030712]">
+
           <ChatHistory
+            key={historyRefresh}
             activeChatId={chatId}
             onNewChat={handleNewChat}
             onSelectChat={handleSelectChat}
           />
+
         </div>
       )}
 

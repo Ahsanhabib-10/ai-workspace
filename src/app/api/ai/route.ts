@@ -1,4 +1,3 @@
-
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
@@ -9,6 +8,42 @@ import Groq from "groq-sdk";
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
 });
+
+// --------------------------------
+// Generate a clean chat title
+// --------------------------------
+
+function generateChatTitle(question: string) {
+  const cleaned = question
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (!cleaned) {
+    return "New Chat";
+  }
+
+  // Remove common question starters
+  const title = cleaned
+    .replace(
+      /^(please|can you|could you|would you|tell me|explain|what is|what are|how do i|how can i|why is|why are)\s+/i,
+      ""
+    )
+    .trim();
+
+  if (!title) {
+    return cleaned.length > 50
+      ? `${cleaned.slice(0, 50)}...`
+      : cleaned;
+  }
+
+  const finalTitle =
+    title.charAt(0).toUpperCase() +
+    title.slice(1);
+
+  return finalTitle.length > 50
+    ? `${finalTitle.slice(0, 50)}...`
+    : finalTitle;
+}
 
 export async function POST(request: Request) {
   try {
@@ -22,7 +57,8 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           success: false,
-          error: "Unauthorized. Please login first.",
+          error:
+            "Unauthorized. Please login first.",
         },
         { status: 401 }
       );
@@ -85,10 +121,7 @@ export async function POST(request: Request) {
         await prisma.chat.create({
           data: {
             userId,
-            title:
-              question.length > 60
-                ? `${question.slice(0, 60)}...`
-                : question,
+            title: generateChatTitle(question),
           },
         });
 
@@ -155,6 +188,15 @@ export async function POST(request: Request) {
         },
       });
 
+      await prisma.chat.update({
+        where: {
+          id: chatId,
+        },
+        data: {
+          updatedAt: new Date(),
+        },
+      });
+
       return NextResponse.json({
         success: true,
         chatId,
@@ -186,7 +228,8 @@ export async function POST(request: Request) {
           id: chunk.id,
           content: chunk.content,
           chunkIndex: chunk.chunkIndex,
-          fileName: chunk.document.fileName,
+          fileName:
+            chunk.document.fileName,
           documentId: chunk.document.id,
           score,
         };
@@ -259,7 +302,8 @@ ${context}`,
     // --------------------------------
 
     const answer =
-      completion.choices[0]?.message?.content ??
+      completion.choices[0]?.message
+        ?.content ??
       "I could not generate an answer.";
 
     // --------------------------------
@@ -330,4 +374,3 @@ ${context}`,
     );
   }
 }
-

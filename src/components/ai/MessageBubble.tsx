@@ -1,9 +1,14 @@
+"use client";
+
 import {
   Copy,
+  Check,
   RotateCcw,
   User,
   Sparkles,
 } from "lucide-react";
+
+import { useState } from "react";
 
 import TypingIndicator from "./conversation/TypingIndicator";
 
@@ -17,12 +22,36 @@ export default function MessageBubble({
   message,
 }: MessageBubbleProps) {
   const assistant = role === "assistant";
-  const typing = assistant && message === "Typing...";
+  const typing =
+    assistant && message === "Typing...";
+
+  const [copied, setCopied] =
+    useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(
+        message
+      );
+
+      setCopied(true);
+
+      setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+    } catch (error) {
+      console.error(
+        "Copy error:",
+        error
+      );
+    }
+  };
 
   return (
     <div className="mx-auto w-full max-w-5xl">
-
       <div className="flex items-start gap-4">
+
+        {/* Avatar */}
 
         <div
           className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${
@@ -38,31 +67,86 @@ export default function MessageBubble({
           )}
         </div>
 
-        <div className="flex-1">
+        {/* Message Content */}
+
+        <div className="min-w-0 flex-1">
+
+          {/* Name */}
 
           <p className="font-semibold text-white">
-            {assistant ? "Nexora AI" : "You"}
+            {assistant
+              ? "Nexora AI"
+              : "You"}
           </p>
 
+          {/* Message */}
+
           {typing ? (
-            <TypingIndicator />
+            <div className="mt-3">
+              <TypingIndicator />
+            </div>
           ) : (
-            <p className="mt-3 whitespace-pre-wrap leading-8 text-slate-300">
+            <div
+              className={`mt-3 whitespace-pre-wrap leading-8 ${
+                assistant
+                  ? "text-slate-300"
+                  : "text-slate-200"
+              }`}
+            >
               {message}
-            </p>
+            </div>
           )}
 
+          {/* AI Actions */}
+
           {assistant && !typing && (
-            <div className="mt-5 flex gap-3">
+            <div className="mt-5 flex items-center gap-3">
 
-<button
-  onClick={() => navigator.clipboard.writeText(message)}
-  className="rounded-lg border border-white/10 p-2 transition hover:bg-white/10"
->
-  <Copy size={16} />
-</button>
+              {/* Copy */}
 
-              <button className="rounded-lg border border-white/10 p-2 transition hover:bg-white/10">
+              <button
+                type="button"
+                onClick={handleCopy}
+                aria-label={
+                  copied
+                    ? "Copied"
+                    : "Copy response"
+                }
+                className="
+                  rounded-lg
+                  border
+                  border-white/10
+                  p-2
+                  text-slate-400
+                  transition
+                  hover:bg-white/10
+                  hover:text-white
+                "
+              >
+                {copied ? (
+                  <Check size={16} />
+                ) : (
+                  <Copy size={16} />
+                )}
+              </button>
+
+              {/* Regenerate */}
+
+              <button
+                type="button"
+                disabled
+                aria-label="Regenerate response"
+                title="Regenerate will be added next"
+                className="
+                  cursor-not-allowed
+                  rounded-lg
+                  border
+                  border-white/10
+                  p-2
+                  text-slate-600
+                  opacity-60
+                "
+              >
                 <RotateCcw size={16} />
               </button>
 
@@ -70,9 +154,7 @@ export default function MessageBubble({
           )}
 
         </div>
-
       </div>
-
     </div>
   );
 }

@@ -13,38 +13,37 @@ interface ChatHistoryProps {
   activeChatId: string | null;
   onNewChat: () => void;
   onSelectChat: (chatId: string) => void;
+  refreshKey?: number;
 }
 
 export default function ChatHistory({
   activeChatId,
   onNewChat,
   onSelectChat,
+  refreshKey = 0,
 }: ChatHistoryProps) {
-  const [chats, setChats] =
-    useState<Chat[]>([]);
+  const [chats, setChats] = useState<Chat[]>([]);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [loading, setLoading] = useState(true);
+
+  // --------------------------------
+  // Load Chats
+  // --------------------------------
 
   const loadChats = async () => {
     try {
       setLoading(true);
 
-      const response = await fetch(
-        "/api/chats",
-        {
-          method: "GET",
-          cache: "no-store",
-        }
-      );
+      const response = await fetch("/api/chats", {
+        method: "GET",
+        cache: "no-store",
+      });
 
-      const data =
-        await response.json();
+      const data = await response.json();
 
       if (!response.ok) {
         throw new Error(
-          data.error ||
-            "Failed to load chats."
+          data.error || "Failed to load chats."
         );
       }
 
@@ -59,9 +58,124 @@ export default function ChatHistory({
     }
   };
 
+  // --------------------------------
+  // Rename Chat
+  // --------------------------------
+
+  const handleRenameChat = async (
+    chatId: string,
+    currentTitle: string
+  ) => {
+    const newTitle = window.prompt(
+      "Rename chat:",
+      currentTitle
+    );
+
+    if (newTitle === null) {
+      return;
+    }
+
+    const cleanTitle = newTitle.trim();
+
+    if (!cleanTitle) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `/api/chats/${chatId}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            title: cleanTitle,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.error ||
+            "Failed to rename chat."
+        );
+      }
+
+      setChats((prev) =>
+        prev.map((chat) =>
+          chat.id === chatId
+            ? {
+                ...chat,
+                title:
+                  data.chat?.title ??
+                  cleanTitle,
+              }
+            : chat
+        )
+      );
+    } catch (error) {
+      console.error(
+        "Rename chat error:",
+        error
+      );
+    }
+  };
+
+  // --------------------------------
+  // Delete Chat
+  // --------------------------------
+
+  const handleDeleteChat = async (
+    chatId: string
+  ) => {
+    try {
+      const response = await fetch(
+        `/api/chats/${chatId}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.error ||
+            "Failed to delete chat."
+        );
+      }
+
+      setChats((prev) =>
+        prev.filter(
+          (chat) => chat.id !== chatId
+        )
+      );
+
+      if (chatId === activeChatId) {
+        onNewChat();
+      }
+    } catch (error) {
+      console.error(
+        "Delete chat error:",
+        error
+      );
+    }
+  };
+
+  // --------------------------------
+  // Initial Load + Refresh
+  // --------------------------------
+
   useEffect(() => {
     loadChats();
-  }, []);
+  }, [refreshKey]);
+
+  // --------------------------------
+  // UI
+  // --------------------------------
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -115,6 +229,15 @@ export default function ChatHistory({
               }
               onClick={() =>
                 onSelectChat(chat.id)
+              }
+              onDelete={() =>
+                handleDeleteChat(chat.id)
+              }
+              onRename={() =>
+                handleRenameChat(
+                  chat.id,
+                  chat.title
+                )
               }
             />
           ))
